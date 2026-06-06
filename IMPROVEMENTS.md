@@ -22,3 +22,5 @@
 
 ### Future Features
 - Add descriptions to tasks
+- Convert into Docker image
+- Add more test

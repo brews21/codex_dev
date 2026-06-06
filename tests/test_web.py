@@ -31,3 +31,22 @@ def test_web_sorts_todos_by_priority(tmp_path: Path) -> None:
 
     assert response.status_code == 200
     assert response.text.index("Urgent task") < response.text.index("Low task")
+
+
+def test_web_edits_todo_title_and_priority(tmp_path: Path) -> None:
+    todo_file = tmp_path / "todos.json"
+    app = create_app(todo_file)
+    client = app.test_client()
+
+    client.post("/todos", data={"title": "Old task", "priority": "Low"})
+    response = client.post(
+        "/todos/1/edit",
+        data={"title": "New task", "priority": "High"},
+        follow_redirects=True,
+    )
+
+    todo = load_todos(todo_file)[0]
+    assert response.status_code == 200
+    assert "New task" in response.text
+    assert todo.title == "New task"
+    assert todo.priority == "High"

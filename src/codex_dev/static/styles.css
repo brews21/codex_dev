@@ -233,9 +233,48 @@ h2 {
   line-height: 1.35;
 }
 
-.todo-item.is-done .todo-content p {
+.todo-item.is-done .edit-form input {
   color: var(--muted);
   text-decoration: line-through;
+}
+
+.edit-form {
+  display: grid;
+  grid-template-columns: 1fr minmax(112px, auto) auto;
+  gap: 8px;
+}
+
+.edit-form input,
+.edit-form select {
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.edit-form input:focus,
+.edit-form select:focus {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(31, 138, 112, 0.16);
+}
+
+.save-button {
+  min-width: 62px;
+  height: 36px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--surface-muted);
+  color: var(--accent-strong);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.save-button:hover {
+  background: rgba(31, 138, 112, 0.14);
 }
 
 .priority {
@@ -361,6 +400,10 @@ h2 {
   .sort-form {
     grid-template-columns: auto 1fr;
     align-items: center;
+  }
+
+  .edit-form {
+    grid-template-columns: 1fr;
   }
 
   .add-form button {

@@ -7,12 +7,15 @@ from flask import Flask, redirect, render_template, request, url_for
 from codex_dev.todo import (
     DEFAULT_PRIORITY,
     PRIORITIES,
+    SORT_OPTIONS,
     TODO_FILE,
     add_todo,
     clear_completed,
     delete_todo,
     load_todos,
+    normalize_sort,
     set_done,
+    sort_todos,
 )
 
 
@@ -21,7 +24,8 @@ def create_app(todo_file: Path = TODO_FILE) -> Flask:
 
     @app.get("/")
     def index() -> str:
-        todos = load_todos(todo_file)
+        sort_by = normalize_sort(request.args.get("sort"))
+        todos = sort_todos(load_todos(todo_file), sort_by)
         active_todos = [todo for todo in todos if not todo.done]
         completed_todos = [todo for todo in todos if todo.done]
         return render_template(
@@ -29,6 +33,8 @@ def create_app(todo_file: Path = TODO_FILE) -> Flask:
             active_todos=active_todos,
             completed_todos=completed_todos,
             priorities=PRIORITIES,
+            sort_options=SORT_OPTIONS,
+            current_sort=sort_by,
             default_priority=DEFAULT_PRIORITY,
             total_count=len(todos),
             active_count=len(active_todos),

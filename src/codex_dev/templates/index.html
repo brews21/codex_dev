@@ -19,17 +19,35 @@
         </div>
       </header>
 
-      <form class="add-form" action="{{ url_for('create_todo') }}" method="post">
-        <label class="sr-only" for="title">New todo</label>
-        <input id="title" name="title" type="text" placeholder="Add a task" autocomplete="off" autofocus required>
-        <label class="sr-only" for="priority">Priority</label>
-        <select id="priority" name="priority" aria-label="Priority">
-          {% for priority in priorities %}
-            <option value="{{ priority }}" {% if priority == default_priority %}selected{% endif %}>{{ priority }}</option>
-          {% endfor %}
-        </select>
-        <button type="submit">Add</button>
-      </form>
+      <div class="controls">
+        <form class="add-form" action="{{ url_for('create_todo') }}" method="post">
+          <label class="sr-only" for="title">New todo</label>
+          <input id="title" name="title" type="text" placeholder="Add a task" autocomplete="off" autofocus required>
+          <label class="sr-only" for="priority">Priority</label>
+          <select id="priority" name="priority" aria-label="Priority">
+            {% for priority in priorities %}
+              <option value="{{ priority }}" {% if priority == default_priority %}selected{% endif %}>{{ priority }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit">Add</button>
+        </form>
+
+        <form class="sort-form" action="{{ url_for('index') }}" method="get">
+          <label for="sort">Sort</label>
+          <select id="sort" name="sort" onchange="this.form.submit()">
+            {% for sort_option in sort_options %}
+              <option value="{{ sort_option }}" {% if sort_option == current_sort %}selected{% endif %}>{{ sort_option | title }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+
+      {% macro todo_timestamp(todo) -%}
+        <time datetime="{{ todo.created_at }}">Created {{ todo.created_at[:10] }}</time>
+        {% if todo.updated_at != todo.created_at %}
+          <time datetime="{{ todo.updated_at }}">Updated {{ todo.updated_at[:10] }}</time>
+        {% endif %}
+      {%- endmacro %}
 
       {% if total_count == 0 %}
         <section class="empty-state" aria-live="polite">

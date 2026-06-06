@@ -3,11 +3,15 @@ from __future__ import annotations
 import argparse
 import json
 from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
 TODO_FILE = Path(".todos.json")
 PRIORITIES = ("Urgent", "High", "Medium", "Low")
 DEFAULT_PRIORITY = "Medium"
+SORT_OPTIONS = ("created", "updated", "priority", "title")
+DEFAULT_SORT = "created"
+PRIORITY_ORDER = {priority: index for index, priority in enumerate(PRIORITIES)}
 
 
 @dataclass
@@ -16,6 +20,12 @@ class Todo:
     title: str
     priority: str = DEFAULT_PRIORITY
     done: bool = False
+    created_at: str = ""
+    updated_at: str = ""
+
+
+def current_timestamp() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
 def normalize_priority(priority: str | None) -> str:
@@ -28,6 +38,12 @@ def normalize_priority(priority: str | None) -> str:
     return DEFAULT_PRIORITY
 
 
+def normalize_sort(sort_by: str | None) -> str:
+    if sort_by in SORT_OPTIONS:
+        return sort_by
+    return DEFAULT_SORT
+
+
 def load_todos(path: Path = TODO_FILE) -> list[Todo]:
     if not path.exists():
         return []
@@ -35,15 +51,20 @@ def load_todos(path: Path = TODO_FILE) -> list[Todo]:
     with path.open("r", encoding="utf-8") as todo_file:
         items = json.load(todo_file)
 
-    return [
-        Todo(
-            id=item["id"],
-            title=item["title"],
-            priority=normalize_priority(item.get("priority")),
-            done=item.get("done", False),
+    todos = []
+    for item in items:
+        timestamp = current_timestamp()
+        todos.append(
+            Todo(
+                id=item["id"],
+                title=item["title"],
+                priority=normalize_priority(item.get("priority")),
+                done=item.get("done", False),
+                created_at=item.get("created_at", timestamp),
+                updated_at=item.get("updated_at", item.get("created_at", timestamp)),
+            )
         )
-        for item in items
-    ]
+    return todos
 
 
 def save_todos(todos: list[Todo], path: Path = TODO_FILE) -> None:
@@ -62,7 +83,14 @@ def add_todo(
     priority: str = DEFAULT_PRIORITY,
 ) -> Todo:
     todos = load_todos(path)
-    todo = Todo(id=next_id(todos), title=title, priority=normalize_priority(priority))
+    timestamp = current_timestamp()
+    todo = Todo(
+        id=next_id(todos),
+        title=title,
+        priority=normalize_priority(priority),
+        created_at=timestamp,
+        updated_at=timestamp,
+    )
     todos.append(todo)
     save_todos(todos, path)
     return todo
@@ -77,6 +105,7 @@ def set_done(todo_id: int, done: bool, path: Path = TODO_FILE) -> Todo | None:
     for todo in todos:
         if todo.id == todo_id:
             todo.done = done
+            todo.updated_at = current_timestamp()
             save_todos(todos, path)
             return todo
     return None
@@ -98,6 +127,17 @@ def clear_completed(path: Path = TODO_FILE) -> int:
     removed_count = len(todos) - len(remaining)
     save_todos(remaining, path)
     return removed_count
+
+
+def sort_todos(todos: list[Todo], sort_by: str = DEFAULT_SORT) -> list[Todo]:
+    sort_by = normalize_sort(sort_by)
+    if sort_by == "priority":
+        return sorted(todos, key=lambda todo: (PRIORITY_ORDER[todo.priority], todo.id))
+    if sort_by == "updated":
+        return sorted(todos, key=lambda todo: (todo.updated_at, todo.id), reverse=True)
+    if sort_by == "title":
+        return sorted(todos, key=lambda todo: (todo.title.lower(), todo.id))
+    return sorted(todos, key=lambda todo: (todo.created_at, todo.id))
 
 
 def format_todos(todos: list[Todo]) -> str:
@@ -125,7 +165,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="Todo priority",
     )
 
-    subparsers.add_parser("list", help="List todos")
+    list_parser = subparsers.add_parser("list", help="List todos")
+    list_parser.add_argument(
+        "--sort",
+        choices=SORT_OPTIONS,
+        default=DEFAULT_SORT,
+        help="Sort todos",
+    )
 
     done_parser = subparsers.add_parser("done", help="Mark a todo as done")
     done_parser.add_argument("id", type=int, help="Todo id")
@@ -145,7 +191,7 @@ def main(argv: list[str] | None = None) -> None:
         todo = add_todo(" ".join(args.title), priority=args.priority)
         print(f"Added #{todo.id}: [{todo.priority}] {todo.title}")
     elif args.command == "list":
-        print(format_todos(load_todos()))
+        print(format_todos(sort_todos(load_todos(), args.sort)))
     elif args.command == "done":
         todo = mark_done(args.id)
         print(f"Completed #{todo.id}: {todo.title}" if todo else "Todo not found.")

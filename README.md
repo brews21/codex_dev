@@ -37,13 +37,14 @@ todo-web
 
 ```bash
 PYTHONPATH=src python -m codex_dev.todo add Buy milk --priority High
-PYTHONPATH=src python -m codex_dev.todo list
+PYTHONPATH=src python -m codex_dev.todo list --sort priority
 PYTHONPATH=src python -m codex_dev.todo done 1
 PYTHONPATH=src python -m codex_dev.todo delete 1
 PYTHONPATH=src python -m codex_dev.todo clear-completed
 ```
 
 Priorities are `Urgent`, `High`, `Medium`, and `Low`. New todos default to `Medium`.
+Sort options are `created`, `updated`, `priority`, and `title`.
 
 Todo data is saved in `.todos.json`, which is ignored by git.
 
@@ -51,5 +52,5 @@ After installing locally, you can also run the CLI with:
 
 ```bash
 todo add Buy milk --priority High
-todo list
+todo list --sort priority
 ```

@@ -6,3 +6,4 @@
 - Move to a Database model, way from json
 - Edit tasks
 - Timestamp tasks, at creation and when updated
+- Setup PreCommit checks

@@ -10,7 +10,10 @@
   </form>
   <div class="todo-content">
     <p>{{ todo.title }}</p>
-    <span class="priority priority-{{ todo.priority | lower }}">{{ todo.priority }}</span>
+    <div class="todo-meta">
+      <span class="priority priority-{{ todo.priority | lower }}">{{ todo.priority }}</span>
+      {{ todo_timestamp(todo) }}
+    </div>
   </div>
   <form action="{{ url_for('remove_todo', todo_id=todo.id) }}" method="post">
     <button class="icon-button" type="submit" aria-label="Delete {{ todo.title }}" title="Delete">

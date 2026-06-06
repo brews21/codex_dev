@@ -85,6 +85,13 @@ h2 {
   background: rgba(255, 255, 255, 0.72);
 }
 
+.controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 12px;
+}
+
 .add-form {
   display: grid;
   grid-template-columns: 1fr minmax(130px, auto) auto;
@@ -97,7 +104,8 @@ h2 {
 }
 
 .add-form input,
-.add-form select {
+.add-form select,
+.sort-form select {
   min-width: 0;
   height: 48px;
   padding: 0 14px;
@@ -108,12 +116,14 @@ h2 {
   outline: none;
 }
 
-.add-form select {
+.add-form select,
+.sort-form select {
   cursor: pointer;
 }
 
 .add-form input:focus,
-.add-form select:focus {
+.add-form select:focus,
+.sort-form select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(31, 138, 112, 0.16);
 }
@@ -136,6 +146,26 @@ h2 {
 
 .add-form button:hover {
   background: var(--accent-strong);
+}
+
+.sort-form {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.sort-form label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.sort-form select {
+  min-width: 132px;
 }
 
 .todo-section,
@@ -215,6 +245,18 @@ h2 {
   font-size: 0.78rem;
   font-weight: 800;
   line-height: 1;
+}
+
+.todo-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.todo-meta time {
+  color: var(--muted);
+  font-size: 0.78rem;
 }
 
 .priority-urgent {
@@ -310,6 +352,15 @@ h2 {
 
   .add-form {
     grid-template-columns: 1fr;
+  }
+
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .sort-form {
+    grid-template-columns: auto 1fr;
+    align-items: center;
   }
 
   .add-form button {

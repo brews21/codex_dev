@@ -111,6 +111,25 @@ def set_done(todo_id: int, done: bool, path: Path = TODO_FILE) -> Todo | None:
     return None
 
 
+def edit_todo(
+    todo_id: int,
+    path: Path = TODO_FILE,
+    title: str | None = None,
+    priority: str | None = None,
+) -> Todo | None:
+    todos = load_todos(path)
+    for todo in todos:
+        if todo.id == todo_id:
+            if title is not None:
+                todo.title = title
+            if priority is not None:
+                todo.priority = normalize_priority(priority)
+            todo.updated_at = current_timestamp()
+            save_todos(todos, path)
+            return todo
+    return None
+
+
 def delete_todo(todo_id: int, path: Path = TODO_FILE) -> Todo | None:
     todos = load_todos(path)
     for todo in todos:
@@ -179,6 +198,16 @@ def build_parser() -> argparse.ArgumentParser:
     delete_parser = subparsers.add_parser("delete", help="Delete a todo")
     delete_parser.add_argument("id", type=int, help="Todo id")
 
+    edit_parser = subparsers.add_parser("edit", help="Edit a todo")
+    edit_parser.add_argument("id", type=int, help="Todo id")
+    edit_parser.add_argument("--title", nargs="+", help="Updated todo text")
+    edit_parser.add_argument(
+        "-p",
+        "--priority",
+        choices=PRIORITIES,
+        help="Updated todo priority",
+    )
+
     subparsers.add_parser("clear-completed", help="Delete completed todos")
     return parser
 
@@ -198,6 +227,10 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "delete":
         todo = delete_todo(args.id)
         print(f"Deleted #{todo.id}: {todo.title}" if todo else "Todo not found.")
+    elif args.command == "edit":
+        title = " ".join(args.title) if args.title else None
+        todo = edit_todo(args.id, title=title, priority=args.priority)
+        print(f"Updated #{todo.id}: [{todo.priority}] {todo.title}" if todo else "Todo not found.")
     elif args.command == "clear-completed":
         removed_count = clear_completed()
         print(f"Removed {removed_count} completed todo(s).")

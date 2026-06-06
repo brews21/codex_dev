@@ -9,7 +9,17 @@
     >
   </form>
   <div class="todo-content">
-    <p>{{ todo.title }}</p>
+    <form class="edit-form" action="{{ url_for('update_todo', todo_id=todo.id) }}" method="post">
+      <label class="sr-only" for="title-{{ todo.id }}">Task title</label>
+      <input id="title-{{ todo.id }}" name="title" type="text" value="{{ todo.title }}" required>
+      <label class="sr-only" for="priority-{{ todo.id }}">Priority</label>
+      <select id="priority-{{ todo.id }}" name="priority" aria-label="Priority">
+        {% for priority in priorities %}
+          <option value="{{ priority }}" {% if priority == todo.priority %}selected{% endif %}>{{ priority }}</option>
+        {% endfor %}
+      </select>
+      <button class="save-button" type="submit">Save</button>
+    </form>
     <div class="todo-meta">
       <span class="priority priority-{{ todo.priority | lower }}">{{ todo.priority }}</span>
       {{ todo_timestamp(todo) }}

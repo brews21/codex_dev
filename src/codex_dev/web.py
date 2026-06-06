@@ -12,6 +12,7 @@ from codex_dev.todo import (
     add_todo,
     clear_completed,
     delete_todo,
+    edit_todo,
     load_todos,
     normalize_sort,
     set_done,
@@ -58,6 +59,13 @@ def create_app(todo_file: Path = TODO_FILE) -> Flask:
     @app.post("/todos/<int:todo_id>/delete")
     def remove_todo(todo_id: int):
         delete_todo(todo_id, todo_file)
+        return redirect(url_for("index"))
+
+    @app.post("/todos/<int:todo_id>/edit")
+    def update_todo(todo_id: int):
+        title = request.form.get("title", "").strip()
+        priority = request.form.get("priority")
+        edit_todo(todo_id, todo_file, title=title or None, priority=priority)
         return redirect(url_for("index"))
 
     @app.post("/todos/clear-completed")

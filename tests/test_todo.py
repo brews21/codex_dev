@@ -8,6 +8,7 @@ from codex_dev.todo import (
     add_todo,
     clear_completed,
     delete_todo,
+    edit_todo,
     format_todos,
     load_todos,
     mark_done,
@@ -82,6 +83,19 @@ def test_set_done_can_reopen_todo(tmp_path: Path) -> None:
     assert load_todos(todo_file)[0].done is False
 
 
+def test_edit_todo_updates_title_and_priority(tmp_path: Path) -> None:
+    todo_file = tmp_path / "todos.json"
+    todo = add_todo("Old title", todo_file, priority="Low")
+
+    edited = edit_todo(1, todo_file, title="New title", priority="Urgent")
+
+    assert edited is not None
+    assert edited.title == "New title"
+    assert edited.priority == "Urgent"
+    assert edited.updated_at >= todo.updated_at
+    assert load_todos(todo_file)[0].title == "New title"
+
+
 def test_delete_todo_removes_matching_todo(tmp_path: Path) -> None:
     todo_file = tmp_path / "todos.json"
     add_todo("Keep", todo_file)
@@ -106,9 +120,11 @@ def test_clear_completed_removes_only_done_todos(tmp_path: Path) -> None:
 
 
 def test_format_todos_shows_statuses() -> None:
-    rendered = format_todos([
-        Todo(id=1, title="Open", priority="High"),
-    ])
+    rendered = format_todos(
+        [
+            Todo(id=1, title="Open", priority="High"),
+        ]
+    )
 
     assert "[ ] [High] Open" in rendered
 

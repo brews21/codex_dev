@@ -8,7 +8,10 @@
       {% if todo.done %}checked{% endif %}
     >
   </form>
-  <p>{{ todo.title }}</p>
+  <div class="todo-content">
+    <p>{{ todo.title }}</p>
+    <span class="priority priority-{{ todo.priority | lower }}">{{ todo.priority }}</span>
+  </div>
   <form action="{{ url_for('remove_todo', todo_id=todo.id) }}" method="post">
     <button class="icon-button" type="submit" aria-label="Delete {{ todo.title }}" title="Delete">
       &times;

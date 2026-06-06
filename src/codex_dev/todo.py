@@ -6,13 +6,26 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 TODO_FILE = Path(".todos.json")
+PRIORITIES = ("Urgent", "High", "Medium", "Low")
+DEFAULT_PRIORITY = "Medium"
 
 
 @dataclass
 class Todo:
     id: int
     title: str
+    priority: str = DEFAULT_PRIORITY
     done: bool = False
+
+
+def normalize_priority(priority: str | None) -> str:
+    if not priority:
+        return DEFAULT_PRIORITY
+
+    for valid_priority in PRIORITIES:
+        if priority.lower() == valid_priority.lower():
+            return valid_priority
+    return DEFAULT_PRIORITY
 
 
 def load_todos(path: Path = TODO_FILE) -> list[Todo]:
@@ -22,7 +35,15 @@ def load_todos(path: Path = TODO_FILE) -> list[Todo]:
     with path.open("r", encoding="utf-8") as todo_file:
         items = json.load(todo_file)
 
-    return [Todo(**item) for item in items]
+    return [
+        Todo(
+            id=item["id"],
+            title=item["title"],
+            priority=normalize_priority(item.get("priority")),
+            done=item.get("done", False),
+        )
+        for item in items
+    ]
 
 
 def save_todos(todos: list[Todo], path: Path = TODO_FILE) -> None:
@@ -35,9 +56,13 @@ def next_id(todos: list[Todo]) -> int:
     return max((todo.id for todo in todos), default=0) + 1
 
 
-def add_todo(title: str, path: Path = TODO_FILE) -> Todo:
+def add_todo(
+    title: str,
+    path: Path = TODO_FILE,
+    priority: str = DEFAULT_PRIORITY,
+) -> Todo:
     todos = load_todos(path)
-    todo = Todo(id=next_id(todos), title=title)
+    todo = Todo(id=next_id(todos), title=title, priority=normalize_priority(priority))
     todos.append(todo)
     save_todos(todos, path)
     return todo
@@ -82,7 +107,7 @@ def format_todos(todos: list[Todo]) -> str:
     lines = []
     for todo in todos:
         status = "x" if todo.done else " "
-        lines.append(f"{todo.id:>3}. [{status}] {todo.title}")
+        lines.append(f"{todo.id:>3}. [{status}] [{todo.priority}] {todo.title}")
     return "\n".join(lines)
 
 
@@ -92,6 +117,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     add_parser = subparsers.add_parser("add", help="Add a new todo")
     add_parser.add_argument("title", nargs="+", help="Todo text")
+    add_parser.add_argument(
+        "-p",
+        "--priority",
+        choices=PRIORITIES,
+        default=DEFAULT_PRIORITY,
+        help="Todo priority",
+    )
 
     subparsers.add_parser("list", help="List todos")
 
@@ -110,8 +142,8 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     if args.command == "add":
-        todo = add_todo(" ".join(args.title))
-        print(f"Added #{todo.id}: {todo.title}")
+        todo = add_todo(" ".join(args.title), priority=args.priority)
+        print(f"Added #{todo.id}: [{todo.priority}] {todo.title}")
     elif args.command == "list":
         print(format_todos(load_todos()))
     elif args.command == "done":

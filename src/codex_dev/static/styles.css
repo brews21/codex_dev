@@ -27,7 +27,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -86,7 +87,7 @@ h2 {
 
 .add-form {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr minmax(130px, auto) auto;
   gap: 10px;
   padding: 12px;
   border: 1px solid var(--line);
@@ -95,7 +96,8 @@ h2 {
   box-shadow: var(--shadow);
 }
 
-.add-form input {
+.add-form input,
+.add-form select {
   min-width: 0;
   height: 48px;
   padding: 0 14px;
@@ -106,7 +108,12 @@ h2 {
   outline: none;
 }
 
-.add-form input:focus {
+.add-form select {
+  cursor: pointer;
+}
+
+.add-form input:focus,
+.add-form select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(31, 138, 112, 0.16);
 }
@@ -184,15 +191,50 @@ h2 {
   background: var(--surface);
 }
 
-.todo-item p {
+.todo-content {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.todo-content p {
   min-width: 0;
   overflow-wrap: anywhere;
   line-height: 1.35;
 }
 
-.todo-item.is-done p {
+.todo-item.is-done .todo-content p {
   color: var(--muted);
   text-decoration: line-through;
+}
+
+.priority {
+  width: fit-content;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.priority-urgent {
+  background: rgba(180, 35, 24, 0.12);
+  color: #9f1c14;
+}
+
+.priority-high {
+  background: rgba(196, 92, 26, 0.14);
+  color: #9a4a15;
+}
+
+.priority-medium {
+  background: rgba(31, 138, 112, 0.14);
+  color: #146956;
+}
+
+.priority-low {
+  background: rgba(96, 112, 128, 0.14);
+  color: #4b5b68;
 }
 
 .toggle-form {

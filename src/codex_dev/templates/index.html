@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Codex Dev</p>
+          <h1>Todo List</h1>
+        </div>
+        <div class="stats" aria-label="Todo stats">
+          <span>{{ active_count }} active</span>
+          <span>{{ completed_count }} done</span>
+        </div>
+      </header>
+
+      <form class="add-form" action="{{ url_for('create_todo') }}" method="post">
+        <label class="sr-only" for="title">New todo</label>
+        <input id="title" name="title" type="text" placeholder="Add a task" autocomplete="off" autofocus required>
+        <button type="submit">Add</button>
+      </form>
+
+      {% if total_count == 0 %}
+        <section class="empty-state" aria-live="polite">
+          <h2>No todos yet</h2>
+          <p>Add the first thing you want to get done.</p>
+        </section>
+      {% else %}
+        <section class="todo-section" aria-labelledby="active-heading">
+          <div class="section-heading">
+            <h2 id="active-heading">Active</h2>
+            <span>{{ active_count }}</span>
+          </div>
+          <div class="todo-list">
+            {% for todo in active_todos %}
+              {% include "_todo_item.html" %}
+            {% else %}
+              <p class="quiet">Nothing active.</p>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="todo-section" aria-labelledby="completed-heading">
+          <div class="section-heading">
+            <h2 id="completed-heading">Completed</h2>
+            <form action="{{ url_for('remove_completed') }}" method="post">
+              <button class="ghost-button" type="submit" {% if completed_count == 0 %}disabled{% endif %}>Clear</button>
+            </form>
+          </div>
+          <div class="todo-list">
+            {% for todo in completed_todos %}
+              {% include "_todo_item.html" %}
+            {% else %}
+              <p class="quiet">Nothing completed.</p>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+    </main>
+  </body>
+</html>

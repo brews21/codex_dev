@@ -1,0 +1,17 @@
+<article class="todo-item {% if todo.done %}is-done{% endif %}">
+  <form class="toggle-form" action="{{ url_for('toggle_todo', todo_id=todo.id) }}" method="post">
+    <input
+      aria-label="Mark {{ todo.title }} complete"
+      name="done"
+      type="checkbox"
+      onchange="this.form.submit()"
+      {% if todo.done %}checked{% endif %}
+    >
+  </form>
+  <p>{{ todo.title }}</p>
+  <form action="{{ url_for('remove_todo', todo_id=todo.id) }}" method="post">
+    <button class="icon-button" type="submit" aria-label="Delete {{ todo.title }}" title="Delete">
+      &times;
+    </button>
+  </form>
+</article>

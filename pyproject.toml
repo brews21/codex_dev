@@ -1,0 +1,24 @@
+[project]
+name = "codex-dev"
+version = "0.1.0"
+description = "A small command-line todo list app."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["Flask>=3"]
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[project.scripts]
+todo = "codex_dev.todo:main"
+todo-web = "codex_dev.web:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
